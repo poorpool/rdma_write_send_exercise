@@ -135,7 +135,7 @@ void ExchangeQP() { // NOLINT
   c_ctx.remote_addr = resp["remote_addr"].asUInt64();
 
   RdmaModifyQp2Rts(c_ctx.qp, local_info, remote_info);
-  RdmaPostRecv(4096, c_ctx.recv_mr->length, 114514, c_ctx.qp, c_ctx.small_buf);
+  RdmaPostRecv(4096, c_ctx.recv_mr->lkey, 114514, c_ctx.qp, c_ctx.small_buf);
 }
 
 bool should_infini_loop = true;
@@ -183,7 +183,7 @@ int main(int argc, char *argv[]) {
           for (int i = 0; i < kRdmaQueueSize / 2; i++) {
             c_ctx.que.push(i);
           }
-          RdmaPostRecv(4096, c_ctx.recv_mr->length, 114514, c_ctx.qp,
+          RdmaPostRecv(4096, c_ctx.recv_mr->lkey, 114514, c_ctx.qp,
                        c_ctx.small_buf);
         } else {
           printf("unknown wc[i].opcode %d\n", wc[i].opcode);

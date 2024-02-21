@@ -122,9 +122,9 @@ public:
         .qpNum = req["qp_num"].asUInt(),
         .gid = RdmaStr2Gid(req["gid"].asString()),
         .gid_index = req["gid_index"].asInt()};
-    printf("remote lid %d qp_num %d gid %s gid_index %d\n", local_info.lid,
-           local_info.qpNum, RdmaGid2Str(local_info.gid).c_str(),
-           local_info.gid_index);
+    printf("remote lid %d qp_num %d gid %s gid_index %d\n", remote_info.lid,
+           remote_info.qpNum, RdmaGid2Str(remote_info.gid).c_str(),
+           remote_info.gid_index);
 
     RdmaModifyQp2Rts(s_ctx.qp, local_info, remote_info);
 
@@ -139,8 +139,7 @@ public:
     resp["gid"] = RdmaGid2Str(local_info.gid);
     resp["gid_index"] = local_info.gid_index;
     resp["rkey"] = s_ctx.mr->rkey;
-    resp["remote_addr"] =
-        reinterpret_cast<unsigned long long>(s_ctx.buf); // NOLINT
+    resp["remote_addr"] = reinterpret_cast<uint64_t>(s_ctx.buf); // NOLINT
   }
 };
 
@@ -217,7 +216,8 @@ int main(int argc, char *argv[]) {
     // 一轮一轮允许发送
     if (batch_send_cnt == kRdmaQueueSize / 2) {
       batch_send_cnt = 0;
-      RdmaPostSend(4, s_ctx.send_mr->lkey, 114514, 1919810, s_ctx.qp, s_ctx.send_mr->addr);
+      RdmaPostSend(4, s_ctx.send_mr->lkey, 114514, 1919810, s_ctx.qp,
+                   s_ctx.send_mr->addr);
     }
     cnt_since_last_ts += n;
     int64_t curr_ts = GetUs();
